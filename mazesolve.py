@@ -16,7 +16,7 @@ def main():
     # print(maze_array)
 
     img = make_image(maze_array)
-    img.save('maze.png')
+    img.save('imgs\maze.bmp')
 
     g = make_graph(maze_array)
 
@@ -30,7 +30,7 @@ def main():
         maze_array[point] = 2
 
     img2 = make_image(maze_array)
-    img2.save('maze_s.png')
+    img2.save('imgs\maze_s.bmp')
 
 
 if __name__ == '__main__':
