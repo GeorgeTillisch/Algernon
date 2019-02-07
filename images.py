@@ -1,6 +1,8 @@
 import numpy as np
 from PIL import Image
 
+WHITE = [255, 255, 255]
+RED = [255, 0, 0]
 
 def make_image(maze_array):
     """Makes an image from a numpy array.
@@ -23,9 +25,9 @@ def make_image(maze_array):
     for i in range(maze_array.shape[0]):
         for j in range(maze_array.shape[1]):
             if maze_array[i, j] == 0:
-                data[i, j] = [255, 255, 255]
+                data[i, j] = WHITE
             elif maze_array[i, j] == 2:
-                data[i, j] = [255, 0, 0]
+                data[i, j] = RED
 
     return Image.fromarray(data, 'RGB')
 

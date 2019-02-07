@@ -3,11 +3,13 @@ import networkx as nx
 import numpy as np
 
 import images
+import svgs
 
 PATH = 'imgs/'
 FILENAME = 'maze'
 SOLVED_EXTENSION = '_s'
-FILE_EXTENSION = '.bmp'
+IMG_EXTENSION = '.bmp'
+SVG_EXTENSION = '.svg'
 
 
 def make_graph(maze_array):
@@ -44,7 +46,7 @@ def make_graph(maze_array):
     return maze_graph
 
 
-# TODO: Delete and impelement different search algorithms
+# TODO: Delete and implement different search algorithms
 def simple_solve(maze_graph):
     nodes = list(maze_graph.nodes())
     start = nodes[0]
@@ -77,9 +79,17 @@ class Solver():
         self.solved = True
 
     def save_state(self, output='i'):
-        img = images.make_image(self.maze_array)
-        if self.solved:
-            path = PATH + FILENAME + SOLVED_EXTENSION + FILE_EXTENSION
-        else:
-            path = PATH + FILENAME + FILE_EXTENSION
-        images.save_image(img, path)
+        if output == 'i':
+            img = images.make_image(self.maze_array)
+            if self.solved:
+                path = PATH + FILENAME + SOLVED_EXTENSION + IMG_EXTENSION
+            else:
+                path = PATH + FILENAME + IMG_EXTENSION
+            images.save_image(img, path)
+        elif output == 'svg':
+            drawing = svgs.make_svg(self.maze_array)
+            if self.solved:
+                path = PATH + FILENAME + SOLVED_EXTENSION + SVG_EXTENSION
+            else:
+                path = PATH + FILENAME + SVG_EXTENSION
+            svgs.save_svg(drawing, path)

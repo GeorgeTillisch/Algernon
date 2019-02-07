@@ -20,8 +20,10 @@ def main():
 
         s = Solver(maze_rows, maze_cols)
         s.save_state()
+        s.save_state(output='svg')
         s.solve()
         s.save_state()
+        s.save_state(output='svg')
         
         sys.exit()
 
