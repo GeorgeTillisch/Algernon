@@ -1,6 +1,7 @@
 import svgwrite
 
 
+# TODO: Re-implement to make smaller svg files, possibly render from graph.
 def make_svg(maze_array):
     """Makes an svg from a numpy array.
 
@@ -18,16 +19,30 @@ def make_svg(maze_array):
     drawing = svgwrite.Drawing(size=(height, width))
 
     for i in range(height):
-        for j in range(width):
-            if maze_array[i, j] == 0:
-                color = 'white'
-            elif maze_array[i, j] == 1:
-                color = 'black'
-            elif maze_array[i, j] == 2:
-                color = 'red'
-            drawing.add(
-                svgwrite.shapes.Rect((j,i), fill=color)
-            )
+        j = 0
+        length = 0
+        while j != width:
+            if j + 1 < width and maze_array[i, j] == maze_array[i, j + 1]:
+                length += 1
+            else:
+                value = maze_array[i, j]
+                if value == 0:
+                    color = 'white'
+                elif value == 1:
+                    color = 'black'
+                elif value == 2:
+                    color = 'red'
+
+                if length == 0:
+                    drawing.add(
+                        svgwrite.shapes.Rect((j,i), fill=color)
+                    )
+                else:
+                    drawing.add(
+                        svgwrite.shapes.Rect((j - length,i), (length + 1, 1) , fill=color)
+                    )
+                length = 0
+            j += 1
     
     return drawing
 
