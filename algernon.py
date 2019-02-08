@@ -6,7 +6,7 @@ from solver import Solver
 def main():
     if len(sys.argv) == 1:
         print(
-            """Usage: algernon maze_rows, maze_cols, [gif]"""
+            """Usage: algernon width height [bmp]"""
         )
         sys.exit()
     elif len(sys.argv) < 3:

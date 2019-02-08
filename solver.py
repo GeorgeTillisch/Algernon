@@ -20,24 +20,25 @@ def simple_solve(maze_graph, start, end):
     return path
 
 
-class Solver():
+class Solver:
     """Class for handling maze solving and output"""
 
     def __init__(self, maze_rows, maze_cols):
         self.maze = daedalus.Maze(maze_rows, maze_cols)
         self.maze.create_perfect()
+        self.height = maze_rows
+        self.width = maze_cols
         self.maze_array = np.array(list(self.maze))
-        self.maze_graph = nx.Graph()
+        self.maze_graph = graphs.MazeGraph(self.maze_array)
         self.solved = False
 
     def reset(self):
         self.maze.create_perfect()
         self.maze_array = np.array(list(self.maze))
-        self.maze_graph = nx.Graph()
+        self.maze_graph = graphs.MazeGraph(self.maze_array)
         self.solved = False
 
     def solve(self, solvetype='simple'):
-        self.maze_graph = graphs.make_passage_graph(self.maze_array)
         count = 0
         for p in self.maze_array[0]:
             if p == 0:
@@ -50,10 +51,15 @@ class Solver():
                 end = (self.maze_array.shape[0] - 1, count)
                 break
             count += 1
-        path = simple_solve(self.maze_graph, start, end)
+        path = simple_solve(self.maze_graph.get_graph(0), start, end)
         for p in path:
             self.maze_array[p] = 2
         self.solved = True
+        edges = []
+        for i, j in enumerate(path):
+            if i + 1 < len(path):
+                edges.append((j, path[i + 1]))
+        self.maze_graph.update_graph(2, edges)
 
     def save_state(self, output='i'):
         if output == 'i':
@@ -64,7 +70,7 @@ class Solver():
                 path = PATH + FILENAME + IMG_EXTENSION
             images.save_image(img, path)
         elif output == 'svg':
-            drawing = svgs.make_svg(self.maze_array)
+            drawing = svgs.make_svg(self.height, self.width, self.maze_graph)
             if self.solved:
                 path = PATH + FILENAME + SOLVED_EXTENSION + SVG_EXTENSION
             else:

@@ -18,7 +18,7 @@ def make_passage_graph(maze_array):
     for i in range(height):
         for j in range(width):
             value = maze_array[i, j]
-            if value != 0: # Only add eges for passages
+            if value != 0:  # Only add eges for passages
                 continue
             below = (i + 1, j)
             left = (i, j - 1)
@@ -28,10 +28,11 @@ def make_passage_graph(maze_array):
                 passage_graph.add_edge(current, below)
             if (j - 1) >= 0 and value == maze_array[left]:
                 passage_graph.add_edge(current, left)
-            if (j + 1) < width and value  == maze_array[right]:
+            if (j + 1) < width and value == maze_array[right]:
                 passage_graph.add_edge(current, right)
 
     return passage_graph
+
 
 def make_section_graphs(maze_array):
     """Makes a networkx graph for each 'section' of the maze from a numpy array.
@@ -49,7 +50,7 @@ def make_section_graphs(maze_array):
 
     height = maze_array.shape[0]
     width = maze_array.shape[1]
-    values = {0:passage_graph, 1:wall_graph, 2:path_graph}
+    values = {0: passage_graph, 1: wall_graph, 2: path_graph}
 
     for i in range(height):
         for j in range(width):
@@ -65,4 +66,22 @@ def make_section_graphs(maze_array):
             if (j + 1) < width and value == maze_array[right]:
                 values.get(value).add_edge(current, right)
 
-    return [passage_graph, wall_graph, path_graph]
+    return values
+
+class MazeGraph:
+    """Class for handling maze graphs"""
+
+    def __init__(self, maze_array):
+        self.graphs = make_section_graphs(maze_array)
+
+    def get_graphs(self):
+        return self.graphs
+
+    def get_graph(self, value):
+        return self.graphs.get(value)
+
+    def update_graphs(self, maze_array):
+        self.graphs = make_section_graphs(maze_array)
+
+    def update_graph(self, value, edges):
+        self.graphs.get(value).add_edges_from(edges)

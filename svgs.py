@@ -1,32 +1,36 @@
 import svgwrite
+import time
 
 import graphs
 
 
-def make_svg(maze_array):
-    height = maze_array.shape[0]
-    width = maze_array.shape[1]
+def make_svg(height, width, maze_graph):
+    """Makes an svg of a maze from a numpy array.
+
+    Args:
+        maze_array: A 2D numpy array.
+
+    Returns:
+        An svgwrite.Drawing object.
+    """
     drawing = svgwrite.Drawing(size=(height, width))
 
-    sections = graphs.make_section_graphs(maze_array)
+    command = 'M {0},{1} L {2},{3} '
 
     passage_path = svgwrite.path.Path(fill='none', stroke='white', stroke_linejoin='miter', stroke_linecap='square', transform='translate(0.5 0.5)')
-    for edge in sections[0].edges():
-        command = f'M {edge[0][1]},{edge[0][0]} L {edge[1][1]},{edge[1][0]}'
-        passage_path.push(command)
+    for edge in maze_graph.get_graph(0).edges():
+        passage_path.push(command.format(edge[0][1], edge[0][0], edge[1][1], edge[1][0]))
     drawing.add(passage_path)
 
     wall_path = svgwrite.path.Path(fill='none', stroke='black', stroke_linejoin='miter', stroke_linecap='square', transform='translate(0.5 0.5)')
-    for edge in sections[1].edges():
-        command = f'M {edge[0][1]},{edge[0][0]} L {edge[1][1]},{edge[1][0]}'
-        wall_path.push(command)
+    for edge in maze_graph.get_graph(1).edges():
+        wall_path.push(command.format(edge[0][1], edge[0][0], edge[1][1], edge[1][0]))
     drawing.add(wall_path)
 
-    if len(sections[2].edges()) > 0:
+    if len(maze_graph.get_graph(2).edges()) > 0:
         path_path = svgwrite.path.Path(fill='none', stroke='red', stroke_linejoin='miter', stroke_linecap='square', transform='translate(0.5 0.5)')
-        for edge in sections[2].edges():
-            command = f'M {edge[0][1]},{edge[0][0]} L {edge[1][1]},{edge[1][0]}'
-            path_path.push(command)
+        for edge in maze_graph.get_graph(2).edges():
+            path_path.push(command.format(edge[0][1], edge[0][0], edge[1][1], edge[1][0]))
         drawing.add(path_path)
 
     return drawing
@@ -39,4 +43,7 @@ def save_svg(drawing, path):
         drawing: An svgwrite.Drawing object.
         path: A raw string with the path.
     """
+    t1 = time.time()
     drawing.saveas(path)
+    print('////', time.time() - t1)
+    print()
