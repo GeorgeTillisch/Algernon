@@ -4,6 +4,8 @@ import numpy as np
 
 import images
 import svgs
+import graphs
+
 
 PATH = 'imgs/'
 FILENAME = 'maze'
@@ -12,45 +14,8 @@ IMG_EXTENSION = '.bmp'
 SVG_EXTENSION = '.svg'
 
 
-def make_graph(maze_array):
-    """Makes a networkx graph from a numpy array.
-
-    Args:
-        maze_array: A 2D numpy array.
-
-    Returns:
-        A networkx Graph object with passages in the maze
-        represented as nodes joined by edges.
-    """
-
-    maze_graph = nx.Graph()
-
-    for i in range(maze_array.shape[0]):
-        for j in range(maze_array.shape[1]):
-            if maze_array[i, j] == 0:
-                maze_graph.add_node((i, j))
-
-    nodes = maze_graph.nodes()
-
-    for node in nodes:
-        below = (node[0]+1, node[1])
-        left = (node[0], node[1] - 1)
-        right = (node[0], node[1] + 1)
-        if below in nodes:
-            maze_graph.add_edge(node, below)
-        if left in nodes:
-            maze_graph.add_edge(node, left)
-        if right in nodes:
-            maze_graph.add_edge(node, right)
-
-    return maze_graph
-
-
 # TODO: Delete and implement different search algorithms
-def simple_solve(maze_graph):
-    nodes = list(maze_graph.nodes())
-    start = nodes[0]
-    end = nodes[len(nodes) - 1]
+def simple_solve(maze_graph, start, end):
     path = nx.shortest_path(maze_graph, source=start, target=end)
     return path
 
@@ -72,8 +37,20 @@ class Solver():
         self.solved = False
 
     def solve(self, solvetype='simple'):
-        self.maze_graph = make_graph(self.maze_array)
-        path = simple_solve(self.maze_graph)
+        self.maze_graph = graphs.make_passage_graph(self.maze_array)
+        count = 0
+        for p in self.maze_array[0]:
+            if p == 0:
+                start = (0, count)
+                break
+            count += 1
+        count = 0
+        for p in self.maze_array[-1]:
+            if p == 0:
+                end = (self.maze_array.shape[0] - 1, count)
+                break
+            count += 1
+        path = simple_solve(self.maze_graph, start, end)
         for p in path:
             self.maze_array[p] = 2
         self.solved = True

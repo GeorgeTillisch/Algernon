@@ -1,49 +1,34 @@
 import svgwrite
 
+import graphs
 
-# TODO: Re-implement to make smaller svg files, possibly render from graph.
+
 def make_svg(maze_array):
-    """Makes an svg from a numpy array.
-
-    Walls (1) are rendered black, passages (0) are rendered white,
-    and paths (2) are rendered red.
-
-    Args:
-        maze_array: A 2D numpy array.
-
-    Returns:
-        An svgwrite.Drawing object.
-    """
     height = maze_array.shape[0]
     width = maze_array.shape[1]
     drawing = svgwrite.Drawing(size=(height, width))
 
-    for i in range(height):
-        j = 0
-        length = 0
-        while j != width:
-            if j + 1 < width and maze_array[i, j] == maze_array[i, j + 1]:
-                length += 1
-            else:
-                value = maze_array[i, j]
-                if value == 0:
-                    color = 'white'
-                elif value == 1:
-                    color = 'black'
-                elif value == 2:
-                    color = 'red'
+    sections = graphs.make_section_graphs(maze_array)
 
-                if length == 0:
-                    drawing.add(
-                        svgwrite.shapes.Rect((j,i), fill=color)
-                    )
-                else:
-                    drawing.add(
-                        svgwrite.shapes.Rect((j - length,i), (length + 1, 1) , fill=color)
-                    )
-                length = 0
-            j += 1
-    
+    passage_path = svgwrite.path.Path(fill='none', stroke='white', stroke_linejoin='miter', stroke_linecap='square', transform='translate(0.5 0.5)')
+    for edge in sections[0].edges():
+        command = f'M {edge[0][1]},{edge[0][0]} L {edge[1][1]},{edge[1][0]}'
+        passage_path.push(command)
+    drawing.add(passage_path)
+
+    wall_path = svgwrite.path.Path(fill='none', stroke='black', stroke_linejoin='miter', stroke_linecap='square', transform='translate(0.5 0.5)')
+    for edge in sections[1].edges():
+        command = f'M {edge[0][1]},{edge[0][0]} L {edge[1][1]},{edge[1][0]}'
+        wall_path.push(command)
+    drawing.add(wall_path)
+
+    if len(sections[2].edges()) > 0:
+        path_path = svgwrite.path.Path(fill='none', stroke='red', stroke_linejoin='miter', stroke_linecap='square', transform='translate(0.5 0.5)')
+        for edge in sections[2].edges():
+            command = f'M {edge[0][1]},{edge[0][0]} L {edge[1][1]},{edge[1][0]}'
+            path_path.push(command)
+        drawing.add(path_path)
+
     return drawing
 
 
