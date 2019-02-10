@@ -70,9 +70,9 @@ class Solver:
                 path = PATH + FILENAME + IMG_EXTENSION
             images.save_image(img, path)
         elif output == 'svg':
-            drawing = svgs.make_svg(self.height, self.width, self.maze_graph)
             if self.solved:
                 path = PATH + FILENAME + SOLVED_EXTENSION + SVG_EXTENSION
             else:
                 path = PATH + FILENAME + SVG_EXTENSION
+            drawing = svgs.make_svg(self.height, self.width, self.maze_graph)
             svgs.save_svg(drawing, path)

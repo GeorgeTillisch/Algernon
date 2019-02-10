@@ -13,7 +13,7 @@ def make_svg(height, width, maze_graph):
     Returns:
         An svgwrite.Drawing object.
     """
-    drawing = svgwrite.Drawing(size=(height, width))
+    drawing = svgwrite.Drawing(size=(height, width), debug=False)
 
     command = 'M {0},{1} L {2},{3} '
 
@@ -43,7 +43,7 @@ def save_svg(drawing, path):
         drawing: An svgwrite.Drawing object.
         path: A raw string with the path.
     """
+    print(drawing.debug)
     t1 = time.time()
     drawing.saveas(path)
-    print('////', time.time() - t1)
-    print()
+    print(time.time() - t1)
