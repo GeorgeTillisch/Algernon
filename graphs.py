@@ -1,4 +1,5 @@
 import networkx as nx
+from collections import deque
 
 
 def make_passage_graph(maze_array):
@@ -85,3 +86,37 @@ class MazeGraph:
 
     def update_graph(self, value, edges):
         self.graphs.get(value).add_edges_from(edges)
+
+def solve_bfs(maze_graph, source, target):
+    passages_graph = maze_graph.get_graph(0)
+
+    visited = dict()
+    parent = dict()
+    for node in passages_graph.nodes():
+        visited[node] = False
+        parent[node] = (0,0)
+    parent[source] = (-1,-1)
+
+    q = deque()
+    q.append(source)
+    visited[source] = True
+
+    while q:
+        v = q.popleft()
+        for n in nx.neighbors(passages_graph, v):
+            if not visited[n]:
+                q.append(n)
+                visited[n] = True
+                parent[n] = v
+
+    path = [target]
+    parent_node = parent[target]
+    while parent_node != (-1,-1):
+        path.insert(0, parent_node)
+        parent_node = parent[parent_node]
+    
+    return (path, [n for n in visited.keys() if visited[n]])
+
+
+def solve_astar(maze_graph, source, target, steps=False):
+    pass

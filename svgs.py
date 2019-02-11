@@ -43,7 +43,4 @@ def save_svg(drawing, path):
         drawing: An svgwrite.Drawing object.
         path: A raw string with the path.
     """
-    print(drawing.debug)
-    t1 = time.time()
     drawing.saveas(path)
-    print(time.time() - t1)
