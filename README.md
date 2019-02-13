@@ -1,6 +1,6 @@
 <img src="imgs\logo\algernon_l_t.svg">
 
-## A program for visualisng graph search algorithms (and solving mazes).
+## A program for visualising graph search algorithms (and solving mazes).
 
 ![](imgs/_unsolved.png)  |  ![](imgs/_solved.png)
 :-------------------------:|:-------------------------:
