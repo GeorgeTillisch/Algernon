@@ -21,7 +21,7 @@ MAZE_TYPES = {
 class Solver:
     """Class for handling maze solving and output"""
 
-    def __init__(self, maze_rows, maze_cols, mazetype, output, solvetype):
+    def __init__(self, maze_rows, maze_cols, mazetype, output, solvetypes):
         self.maze = Maze(maze_rows, maze_cols)
         self.mazetype = mazetype
         MAZE_TYPES.get(self.mazetype)(self.maze)
@@ -33,7 +33,7 @@ class Solver:
 
         self.source, self.target = self.get_source_and_target()
 
-        self.solvetype = solvetype
+        self.solvetypes = solvetypes
         self.solved = False
 
         self.output = output
@@ -50,31 +50,40 @@ class Solver:
     def solve(self):
         if self.solved:
             self.reset()
-        path, visited = SOLVE_TYPES.get(self.solvetype)(self.maze_graph, self.source, self.target)
-        self.update_maze_arrays(path, visited)
-        self.maze_graph.update_graphs(self.maze_arrays[0])
-        self.solved = True
+        for solvetype in self.solvetypes:
+            if self.solved:
+                del(self.maze_arrays[1:])
+                self.solved = False
+            if self.output != 'gif':
+                self.save_state(solvetype)
+            path, visited = SOLVE_TYPES.get(solvetype)(self.maze_graph, self.source, self.target)
+            self.solved = True
+            self.update_maze_arrays(path, visited)
+            if self.output == 'svg':
+                self.maze_graph.update_graphs(self.maze_arrays[1])
+            self.save_state(solvetype)
 
-    def save_state(self):
+    def save_state(self, solvetype):
         if self.output == 'bmp' or self.output == 'png':
             if self.solved:
-                path = PATH + FILENAME + '_' + self.mazetype + '_' + self.solvetype + SOLVED_EXTENSION + '.' + self.output
+                path = PATH + FILENAME + '_' + self.mazetype + '_' + solvetype + SOLVED_EXTENSION + '.' + self.output
+                img = images.make_image(self.maze_arrays[1])
             else:
-                path = PATH + FILENAME + '_' + self.mazetype + '_' + self.solvetype + '.' + self.output
-            img = images.make_image(self.maze_arrays[0])
+                path = PATH + FILENAME + '_' + self.mazetype + '_' + solvetype + '.' + self.output
+                img = images.make_image(self.maze_arrays[0])
             images.save_image(img, path, self.output)
         elif self.output == 'svg':
             if self.solved:
-                path = PATH + FILENAME + '_' + self.mazetype + '_' + self.solvetype + SOLVED_EXTENSION + '.' + self.output
+                path = PATH + FILENAME + '_' + self.mazetype + '_' + solvetype + SOLVED_EXTENSION + '.' + self.output
             else:
-                path = PATH + FILENAME + '_' + self.mazetype + '_' + self.solvetype + '.' + self.output
+                path = PATH + FILENAME + '_' + self.mazetype + '_' + solvetype + '.' + self.output
             drawing = svgs.make_svg(self.height, self.width, self.maze_graph)
             svgs.save_svg(drawing, path)
         elif self.output == 'gif':
             if not(self.solved): # Gif output only makes sense when solved with steps.
                 self.solve()
             imgs = images.make_images(self.maze_arrays)
-            path = PATH + FILENAME + '_' + self.mazetype + '_' + self.solvetype + '.' + self.output
+            path = PATH + FILENAME + '_' + self.mazetype + '_' + solvetype + '.' + self.output
             images.save_gif(imgs, path)
 
     def get_source_and_target(self):
@@ -90,8 +99,9 @@ class Solver:
 
     def update_maze_arrays(self, path, visited):
         if not self.steps:
+            self.maze_arrays.append(np.copy(self.maze_arrays[0]))
             for p in path:
-                self.maze_arrays[0][p] = 2
+                self.maze_arrays[1][p] = 2
         else:
             current_array = np.copy(self.maze_arrays[0])
             for v in sorted(visited):
