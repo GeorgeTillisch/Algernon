@@ -1,3 +1,4 @@
+import heapq
 import networkx as nx
 from math import sqrt
 from collections import deque
@@ -89,7 +90,7 @@ class MazeGraph:
         self.graphs.get(value).add_edges_from(edges)
 
 def solve_bfs(maze_graph, source, target, greedy=False):
-    # This function is used by greedy bfs to preferentially select nodes.
+    # Returns a simple euclidian distance for greedy bfs
     def get_heuristic(node):
         return int(sqrt((node[0]-target[0])**2 + (node[1]-target[1])**2))
 
@@ -103,11 +104,11 @@ def solve_bfs(maze_graph, source, target, greedy=False):
         visited[node] = False
         parent[node] = (0,0)
     parent[source] = (-1,-1)
+    visited[source] = True
 
     # Create queue and add the source node.
     q = deque()
     q.append(source)
-    visited[source] = True
 
     # While the queue still has items, pop first and visit neighbours.
     while q:
@@ -126,17 +127,69 @@ def solve_bfs(maze_graph, source, target, greedy=False):
         if v == target:
             break
 
-
+    # Create the path
     path = [target]
     parent_node = parent[target]
     while parent_node != (-1,-1):
         path.append(parent_node)
         parent_node = parent[parent_node]
     
+    # Return the path and a list of visited nodes
     return (path, [n for n in visited.keys() if visited[n]])
 
 def solve_gbfs(maze_graph, source, target):
     return solve_bfs(maze_graph, source, target, greedy=True)
 
 def solve_astar(maze_graph, source, target, steps=False):
-    pass
+    # Priority queue for node exploration
+    class PriorityQueue:
+        def __init__(self):
+            self.items = []
+        def is_empty(self):
+            return len(self.items)==0
+        def put(self, item, priority):
+            heapq.heappush(self.items, (priority, item))
+        def get(self):
+            return heapq.heappop(self.items)[1]
+    
+    # Returns the Manhattan distance between node and target
+    def get_heuristic(node):
+        return abs(node[0] - target[0]) + abs(node[1] - target[1])
+
+    # Get the graph we want to search
+    passages_graph = maze_graph.get_graph(0)
+
+    # Create priority queue and add source
+    open = PriorityQueue()
+    open.put(source, 0)
+
+    # Need a visited and parent dictionay, and initialise both.
+    visited = dict()
+    parent = dict()
+    for node in passages_graph.nodes():
+        visited[node] = False
+        parent[node] = (0,0)
+    parent[source] = (-1,-1)
+    visited[source] = True
+
+    # Explore neighbors and queue with priority
+    while not open.is_empty():
+        current_node = open.get()
+        for n in nx.neighbors(passages_graph, current_node):
+            if not visited[n]:
+                priority = get_heuristic(n)
+                open.put(n, priority)
+                visited[n] = True
+                parent[n] = current_node
+        if current_node == target:
+            break
+    
+    # Create the path
+    path = [target]
+    parent_node = parent[target]
+    while parent_node != (-1,-1):
+        path.append(parent_node)
+        parent_node = parent[parent_node]
+    
+    # Return the path and a list of visited nodes
+    return (path, [n for n in visited.keys() if visited[n]])
