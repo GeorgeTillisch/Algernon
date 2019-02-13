@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import sys
+import re
 
 from solver import Solver, SOLVE_TYPES
 
 
 def main():
     if len(sys.argv) == 1:
-        print(
-            """Usage: algernon width height solvetype [svg/gif] \nDefaults to BMP output. \nSolvetype Options: bfs, astar"""
-        )
+        print("Usage: algernon width height solvetype [svg/gif]")
+        print("Defaults to BMP output")
+        print("Solvetypes: bfs (breadth first search), gbfs (greedy bfs), astar")
         sys.exit()
     elif len(sys.argv) < 4:
         print(
@@ -28,7 +29,7 @@ def main():
             print('Invalid argument:' + solvetype)
             sys.exit(1)
         
-        output = 'bmp'
+        output='bmp'
         if 'svg' in sys.argv:
             output = 'svg'
         elif 'gif' in sys.argv:
@@ -36,7 +37,7 @@ def main():
 
         s = Solver(maze_rows, maze_cols, output, solvetype)
         
-        if output != 'gif': # Gif doesn't require a 'before' image
+        if output != 'gif': # gif doesn't require a 'before' image
             s.save_state()
         s.solve()
         s.save_state()        

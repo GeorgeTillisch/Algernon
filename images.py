@@ -1,8 +1,12 @@
 import numpy as np
-from PIL import Image
+from PIL import Image, ImagePalette
 
-WHITE = [255, 255, 255]
-RED = [255, 0, 0]
+WIDTH_HEIGHT = (1024,1024)
+GIF_DURATION = 1
+
+PASSAGE_COLOR = [255, 255, 255]
+PATH_COLOR = [255, 0, 0]
+VISTED_COLOR = [255, 200, 200]
 
 def make_image(maze_array):
     """Makes an image from a numpy array.
@@ -25,11 +29,15 @@ def make_image(maze_array):
     for i in range(maze_array.shape[0]):
         for j in range(maze_array.shape[1]):
             if maze_array[i, j] == 0:
-                data[i, j] = WHITE
+                data[i, j] = PASSAGE_COLOR
             elif maze_array[i, j] == 2:
-                data[i, j] = RED
+                data[i, j] = PATH_COLOR
+            elif maze_array[i, j] == 3:
+                data[i, j] = VISTED_COLOR
 
-    return Image.fromarray(data, 'RGB')
+    img = Image.fromarray(data, 'RGB')
+    img = img.resize(WIDTH_HEIGHT, Image.BOX)
+    return img
 
 
 def make_images(maze_array_list):
@@ -69,10 +77,12 @@ def save_gif(image_list, path):
     """
 
     first_frame = image_list[0]
+    first_frame.info['duration']=GIF_DURATION
     first_frame.save(
         path,
         format='gif',
         save_all=True,
         append_images=image_list[1:],
-        loop=0
+        loop=0,
+        optimize=False
     )

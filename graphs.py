@@ -1,4 +1,5 @@
 import networkx as nx
+from math import sqrt
 from collections import deque
 
 
@@ -87,9 +88,15 @@ class MazeGraph:
     def update_graph(self, value, edges):
         self.graphs.get(value).add_edges_from(edges)
 
-def solve_bfs(maze_graph, source, target):
+def solve_bfs(maze_graph, source, target, greedy=False):
+    # This function is used by greedy bfs to preferentially select nodes.
+    def get_heuristic(node):
+        return int(sqrt((node[0]-target[0])**2 + (node[1]-target[1])**2))
+
+    # Get the graph we want to search
     passages_graph = maze_graph.get_graph(0)
 
+    # Need a visited and parent dictionay, and initialise both.
     visited = dict()
     parent = dict()
     for node in passages_graph.nodes():
@@ -97,26 +104,39 @@ def solve_bfs(maze_graph, source, target):
         parent[node] = (0,0)
     parent[source] = (-1,-1)
 
+    # Create queue and add the source node.
     q = deque()
     q.append(source)
     visited[source] = True
 
+    # While the queue still has items, pop first and visit neighbours.
     while q:
         v = q.popleft()
         for n in nx.neighbors(passages_graph, v):
             if not visited[n]:
-                q.append(n)
+                if not greedy:
+                    q.append(n)
+                else: # Greedy bfs expands nodes with a better heuristic first
+                    if len(q) > 0 and get_heuristic(n) <= get_heuristic(q[0]):
+                        q.appendleft(n)
+                    else:
+                        q.append(n)
                 visited[n] = True
                 parent[n] = v
+        if v == target:
+            break
+
 
     path = [target]
     parent_node = parent[target]
     while parent_node != (-1,-1):
-        path.insert(0, parent_node)
+        path.append(parent_node)
         parent_node = parent[parent_node]
     
     return (path, [n for n in visited.keys() if visited[n]])
 
+def solve_gbfs(maze_graph, source, target):
+    return solve_bfs(maze_graph, source, target, greedy=True)
 
 def solve_astar(maze_graph, source, target, steps=False):
     pass

@@ -14,7 +14,7 @@ IMG_EXTENSION = '.bmp'
 SVG_EXTENSION = '.svg'
 GIF_EXTENSION = '.gif'
 
-SOLVE_TYPES = {'bfs':graphs.solve_bfs, 'astar':graphs.solve_astar}
+SOLVE_TYPES = {'bfs':graphs.solve_bfs, 'gbfs':graphs.solve_gbfs, 'astar':graphs.solve_astar}
 
 # TODO: Remove magic numbers.
 class Solver:
@@ -50,8 +50,7 @@ class Solver:
         if self.solved:
             self.reset()
         path, visited = SOLVE_TYPES.get(self.solvetype)(self.maze_graph, self.source, self.target)
-        for p in path:
-            self.maze_arrays[0][p] = 2
+        self.update_maze_arrays(path, visited)
         self.maze_graph.update_graphs(self.maze_arrays[0])
         self.solved = True
 
@@ -87,3 +86,17 @@ class Solver:
             if y == 0:
                 target = (last_row, x)
         return (source, target)
+
+    def update_maze_arrays(self, path, visited):
+        if not self.steps:
+            for p in path:
+                self.maze_arrays[0][p] = 2
+        else:
+            current_array = np.copy(self.maze_arrays[0])
+            for v in sorted(visited):
+                current_array[v] = 3
+                self.maze_arrays.append(np.copy(current_array))
+            for p in path:
+                current_array[p] = 2
+                self.maze_arrays.append(np.copy(current_array))
+
