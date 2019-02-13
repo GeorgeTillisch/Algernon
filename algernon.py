@@ -7,8 +7,8 @@ from solver import Solver, SOLVE_TYPES
 
 def main():
     if len(sys.argv) == 1:
-        print("Usage: algernon width height solvetype [svg/gif]")
-        print("Defaults to BMP output")
+        print("Usage: algernon width height solvetype [bmp/svg/gif]")
+        print("Defaults to PNG output")
         print("Solvetypes: bfs (breadth first search), gbfs (greedy bfs), astar")
         sys.exit()
     elif len(sys.argv) < 4:
@@ -29,8 +29,10 @@ def main():
             print('Invalid argument:' + solvetype)
             sys.exit(1)
         
-        output='bmp'
-        if 'svg' in sys.argv:
+        output='png'
+        if 'bmp' in sys.argv:
+            output = 'png'
+        elif 'svg' in sys.argv:
             output = 'svg'
         elif 'gif' in sys.argv:
             output = 'gif'

@@ -56,7 +56,7 @@ def make_images(maze_array_list):
     return images
 
 
-def save_image(image, path):
+def save_image(image, path, format):
     """Saves an image to the specified path.
 
     Args:
@@ -65,7 +65,7 @@ def save_image(image, path):
         format: Optional format, defaults to BMP. 
     """
 
-    image.save(path, format='BMP')
+    image.save(path, format)
 
 
 def save_gif(image_list, path):

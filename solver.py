@@ -10,9 +10,6 @@ import graphs
 PATH = 'imgs/'
 FILENAME = 'maze'
 SOLVED_EXTENSION = '_s'
-IMG_EXTENSION = '.bmp'
-SVG_EXTENSION = '.svg'
-GIF_EXTENSION = '.gif'
 
 SOLVE_TYPES = {'bfs':graphs.solve_bfs, 'gbfs':graphs.solve_gbfs, 'astar':graphs.solve_astar}
 
@@ -55,25 +52,25 @@ class Solver:
         self.solved = True
 
     def save_state(self):
-        if self.output == 'bmp':
+        if self.output == 'bmp' or self.output == 'png':
             if self.solved:
-                path = PATH + FILENAME + SOLVED_EXTENSION + IMG_EXTENSION
+                path = PATH + FILENAME + '_' + self.solvetype + SOLVED_EXTENSION + '.' + self.output
             else:
-                path = PATH + FILENAME + IMG_EXTENSION
+                path = PATH + FILENAME + '_' + self.solvetype + '.' + self.output
             img = images.make_image(self.maze_arrays[0])
-            images.save_image(img, path)
+            images.save_image(img, path, self.output)
         elif self.output == 'svg':
             if self.solved:
-                path = PATH + FILENAME + SOLVED_EXTENSION + SVG_EXTENSION
+                path = PATH + FILENAME + '_' + self.solvetype + SOLVED_EXTENSION + '.' + self.output
             else:
-                path = PATH + FILENAME + SVG_EXTENSION
+                path = PATH + FILENAME + '_' + self.solvetype + '.' + self.output
             drawing = svgs.make_svg(self.height, self.width, self.maze_graph)
             svgs.save_svg(drawing, path)
         elif self.output == 'gif':
             if not(self.solved): # Gif output only makes sense when solved with steps.
                 self.solve()
             imgs = images.make_images(self.maze_arrays)
-            path = PATH + FILENAME + GIF_EXTENSION
+            path = PATH + FILENAME + '_' + self.solvetype + '.' + self.output
             images.save_gif(imgs, path)
 
     def get_source_and_target(self):
